@@ -1,86 +1,78 @@
-const fs = require('fs');
+const fs = require("fs");
 
-const express = require('express');
-const {nanoid} = require('nanoid');
+const express = require("express");
+const { nanoid } = require("nanoid");
 
 const app = express();
 
 app.use(express.json());
 
 try {
-    const data = fs.readFileSync('./db.json', 'utf8');
+  const data = fs.readFileSync("./db.json", "utf8");
 
-    const db = JSON.parse(data);
+  const db = JSON.parse(data);
 
-    //get course
-    app.get("/api/course", (req, res) => {
-        res.json(db);
-    });
+  //GET COURSES
+  app.get("/v1/courses", (req, res) => {
+    res.status(200).json(db);
+  });
 
-    //get a course
-    app.get("/api/course/:id", (req, res) => {
-        const course = db.find(curCourse => req.params.id === curCourse.id);
-        if(!course) {
-            res.json('id is invalid');
-            return;
-        }
-        res.json(course);
-    });
+  //GET A COURSE
+  app.get("/v1/courses/:id", (req, res) => {
+    const course = db.find((curCourse) => req.params.id === curCourse.id);
+    if (!course) res.status(404).json("ID is invalid");
+    res.json(course);
+  });
 
-    //add course
-    app.post("/api/course", (req, res) => {
-        const {name, description} = req.body;
+  //ADD COURSE
+  app.post("/v1/courses", (req, res) => {
+    const { name, description } = req.body;
 
-        const newCourse = {
-            id: nanoid(),
-            name,
-            description
-        };
-        db.push(newCourse);
-        saveData(db);
-        res.json(newCourse);
-    });
+    const newCourse = {
+      id: nanoid(),
+      name,
+      description,
+    };
 
-    //update course
-    app.put("/api/course/:id", (req, res) => {
-        const course = db.find(curCourse => req.params.id === curCourse.id);
-        if(!course) {
-            res.json('id is invalid');
-            return;
-        }
-        const {name, description} = req.body;
-        course.name = name;
-        course.description = description;
-        
-        saveData(db);
-        
-        res.json('Update Successfully');
-    });
+    db.push(newCourse);
+    saveData(db);
+    res.status(200).json(newCourse);
+  });
 
-    //delete course
-    app.delete("/api/course/:id", (req, res) => {
-        const index = db.findIndex(curCourse => req.params.id === curCourse.id);
-        if(index == -1) {
-            res.json('id is invalid');
-            return;
-        }
-        db.splice(index, 1);
-        saveData(db);
-        res.json('Delete successfully');
-    });
+  //UPDATE COURSE
+  app.put("/v1/courses/:id", (req, res) => {
+    const course = db.find((curCourse) => req.params.id === curCourse.id);
+    if (!course) res.status(404).json("ID is invalid");
 
+    const { name, description } = req.body;
+    course.name = name;
+    course.description = description;
+
+    saveData(db);
+    res.status(200).json("Update Successfully");
+  });
+
+  //DELETE COURSE
+  app.delete("/v1/courses/:id", (req, res) => {
+    const index = db.findIndex((curCourse) => req.params.id === curCourse.id);
+    if (index == -1) res.status(404).json("ID is invalid");
+
+    db.splice(index, 1);
+    saveData(db);
+    res.status(200).json("Delete successfully");
+  });
 } catch (error) {
-    console.log(error);
+  console.log(error);
 }
 
 function saveData(data) {
-    try {
-        fs.writeFileSync('./db.json', JSON.stringify(data), 'utf8');
-    } catch (error) {
-        console.log(error);
-    }
+  try {
+    fs.writeFileSync("./db.json", JSON.stringify(data), "utf8");
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 app.listen(3000, () => {
-    console.log(`Server is running ...`);
+  console.log(`Server is running ...`);
 });

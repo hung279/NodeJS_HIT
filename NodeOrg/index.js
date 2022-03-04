@@ -38,6 +38,7 @@ function creatCourse(req, res) {
 
   req
     .on("data", (chunk) => {
+      //console.log(chunk);
       //console.log(chunk.toString());
       body.push(chunk.toString());
     })

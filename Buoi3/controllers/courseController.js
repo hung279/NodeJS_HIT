@@ -1,4 +1,5 @@
 const Course = require("../models/courseModel");
+const User = require("../models/userModel");
 
 const courseController = {
   //GET ALL COURSES
@@ -15,7 +16,7 @@ const courseController = {
   getCourse: async (req, res) => {
     try {
       const { id } = req.params;
-      const course = await Course.findById(id);
+      const course = await Course.findById(id).populate("students");
 
       res.status(200).json(course);
     } catch (err) {
@@ -50,6 +51,7 @@ const courseController = {
     try {
       const { id } = req.params;
       await Course.findByIdAndDelete(id);
+      await User.updateMany({ courses: id }, { $pull: { courses: id } });
 
       res.status(200).json({ message: "Course deleted" });
     } catch (err) {

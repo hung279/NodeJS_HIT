@@ -16,7 +16,7 @@ const userController = {
   getUser: async (req, res) => {
     try {
       const { id } = req.params;
-      const user = await User.findById(id);
+      const user = await User.findById(id).populate("courses");
 
       res.status(200).json(user);
     } catch (err) {
@@ -28,9 +28,9 @@ const userController = {
   createUser: async (req, res) => {
     try {
       const newUser = await User.create(req.body);
-      if(req.body.courses) {
-          const course = await Course.findById(req.body.courses);
-          await course.updateOne({ $push: { users: newUser._id } });
+      if (req.body.courses) {
+        const course = await Course.findById(req.body.courses);
+        await course.updateOne({ $push: { students: newUser._id } });
       }
       res.status(200).json(newUser);
     } catch (err) {
@@ -42,8 +42,11 @@ const userController = {
   updateUser: async (req, res) => {
     try {
       const { id } = req.params;
-      await User.findByIdAndUpdate(id, req.body);
-
+      const user = await User.findByIdAndUpdate(id, req.body);
+      if (req.body.courses) {
+        const course = await Course.findById(req.body.courses);
+        await course.updateOne({ $push: { students: user._id } });
+      }
       res.status(200).json({ message: "Updated successfully" });
     } catch (err) {
       res.json({ error: err.message });
@@ -55,6 +58,7 @@ const userController = {
     try {
       const { id } = req.params;
       await User.findByIdAndDelete(id);
+      await Course.updateMany({ students: id }, { $pull: { students: id } });
 
       res.status(200).json({ message: "Deleted successfully" });
     } catch (err) {

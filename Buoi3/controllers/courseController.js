@@ -5,7 +5,10 @@ const courseController = {
   //GET ALL COURSES
   getAllCourses: async (req, res) => {
     try {
-      const courses = await Course.find();
+      const courses = await Course.find().populate({
+        path: "students",
+        select: ["name", "year"],
+      });
       res.status(200).json(courses);
     } catch (err) {
       res.json({ error: err.message });
@@ -16,7 +19,10 @@ const courseController = {
   getCourse: async (req, res) => {
     try {
       const { id } = req.params;
-      const course = await Course.findById(id).populate("students");
+      const course = await Course.findById(id).populate({
+        path: "students",
+        select: ["name", "year"],
+      });
 
       res.status(200).json(course);
     } catch (err) {

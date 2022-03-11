@@ -21,7 +21,7 @@ const userController = {
   }),
 
   getUsersAgeCondition: asyncHandle(async (req, res, next) => {
-    const users = await User.find({ age: { $gte: 18, $lte: 48 } });
+    const users = await User.find({ age: { $gte: 18, $lte: 40 } });
     res.status(200).json({
       status: "ok",
       data: users,

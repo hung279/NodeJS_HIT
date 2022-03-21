@@ -1,12 +1,16 @@
 const userController = require("./../controllers/userController");
+const authController = require("./../controllers/authController");
 
 const router = require("express").Router();
 const authMiddleware = require("./../middlewares/auth");
 
 router
   .route("/")
-  .get(authMiddleware.authorizaton, userController.getAllUsers)
+  .get(authMiddleware.protect, userController.getAllUsers)
   .post(userController.addUser);
+router
+  .route("/login")
+  .post(authController.login);
 router
   .route("/age_condition")
   .get(authMiddleware.authorizaton, userController.getUsersAgeCondition);

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const Post = require("./postModel");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -9,10 +10,12 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
+    unique: true
   },
   username: {
     type: String,
     required: true,
+    unique: true,
   },
   password: {
     type: String,
@@ -30,6 +33,8 @@ const userSchema = new mongoose.Schema({
       ref: "Post",
     },
   ],
+  passwordResetToken: String,
+  passwordResetExpires: Date
 });
 
 userSchema.pre("save", async function (next) {
@@ -48,6 +53,21 @@ userSchema.pre("findOneAndDelete", async function (next) {
 
 userSchema.methods.validPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.createPasswordResetToken = function() {
+  const resetToken = crypto.randomBytes(16).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256', "hunghjk")
+    .update(resetToken)
+    .digest('hex');
+
+  console.log({ resetToken }, this.passwordResetToken);
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return this.passwordResetToken;
 };
 
 const User = mongoose.model("User", userSchema);

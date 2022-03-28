@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const Post = require("./postModel");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -46,7 +47,6 @@ userSchema.pre("save", async function (next) {
 
 userSchema.pre("findOneAndDelete", async function (next) {
   const id = this.getQuery()._id;
-  //console.log(id);
   await Post.updateOne({ author: id }, { author: null });
   next();
 });
@@ -54,6 +54,14 @@ userSchema.pre("findOneAndDelete", async function (next) {
 userSchema.methods.validPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
+
+userSchema.methods.signToken = function () {
+  return jwt.sign(
+    { id: this._id },
+    process.env.JWT_ACCESS_KEY,
+    { expiresIn: "30m" }
+  );
+}
 
 userSchema.methods.createPasswordResetToken = function() {
   const resetToken = crypto.randomBytes(16).toString('hex');

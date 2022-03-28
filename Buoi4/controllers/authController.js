@@ -20,11 +20,7 @@ exports.login = asyncHandle(async (req, res, next) => {
     return next(new AppError("Invalid password", 400));
   }
 
-  const token = jwt.sign(
-    { username, role: user.role },
-    process.env.JWT_ACCESS_KEY,
-    { expiresIn: "30m" }
-  );
+  const token = user.signToken();
   res.status(200).json({ token });
 });
 
@@ -44,30 +40,40 @@ exports.forgetPassword = asyncHandle(async (req, res, next) => {
   //req.protocol = http, req.get('host') = localhost:3000
   const resetURL = `${req.protocol}://${req.get(
     "host"
-  )}/user/reset-password?code=${resetToken}`;
+  )}/auth/reset-password/${resetToken}`;
 
   //res.status(200).json({ resetURL });
-  res.redirect(resetURL)
+  res.redirect(resetURL);
 });
 
-exports.getResetPassword = (req, res, next) => {
-  res.render("reset-password");
-}
+exports.getResetPassword = asyncHandle(async (req, res, next) => {
+  const user = await User.findOne({
+    passwordResetToken: req.params.resetToken,
+    passwordResetExpires: { $gte: Date.now() }
+  });
+
+  if (!user) {
+    return next(new AppError("User not found", 400));
+  }
+
+  res.render("reset-password", {
+    resetToken: req.params.resetToken,
+  });
+})
 
 exports.changePassword = asyncHandle(async (req, res, next) => {
-  console.log(req.query);
   const user = await User.findOne({
-    passwordResetToken: req.query.code,
+    passwordResetToken: req.params.resetToken,
     passwordResetExpires: { $gte: Date.now() }
   });
   
-  console.log(user);
-
   if (!user) {
-    return next(new AppError("Token is invalid or has expired", 400));
+    return next(new AppError("User not found", 400));
   }
 
   user.password = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
   await user.save();
 
   res.status(200).json({ message: "change successfully" });

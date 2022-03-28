@@ -9,13 +9,6 @@ router
   .get(authMiddleware.protect, userController.getAllUsers)
   .post(userController.addUser);
 router
-  .route("/login")
-  .post(authController.login);
-router
-  .route("/forget-password")
-  .post(authController.forgetPassword)
-  .put(authController.changePassword);
-router
   .route("/age_condition")
   .get(authMiddleware.authorizaton, userController.getUsersAgeCondition);
 router

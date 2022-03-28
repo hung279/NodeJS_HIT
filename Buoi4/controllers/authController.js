@@ -4,8 +4,8 @@ const asyncHandle = require("./../middlewares/asyncHandle");
 const AppError = require("./../utils/appError");
 
 exports.getLogin = (req, res, next) => {
-  res.render('login');
-}
+  res.render("login");
+};
 
 exports.login = asyncHandle(async (req, res, next) => {
   const { username, password } = req.body;
@@ -25,8 +25,8 @@ exports.login = asyncHandle(async (req, res, next) => {
 });
 
 exports.getForgetPassword = (req, res, next) => {
-  res.render('forget');
-}
+  res.render("forget");
+};
 
 exports.forgetPassword = asyncHandle(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
@@ -49,7 +49,7 @@ exports.forgetPassword = asyncHandle(async (req, res, next) => {
 exports.getResetPassword = asyncHandle(async (req, res, next) => {
   const user = await User.findOne({
     passwordResetToken: req.params.resetToken,
-    passwordResetExpires: { $gte: Date.now() }
+    passwordResetExpires: { $gte: Date.now() },
   });
 
   if (!user) {
@@ -59,14 +59,14 @@ exports.getResetPassword = asyncHandle(async (req, res, next) => {
   res.render("reset-password", {
     resetToken: req.params.resetToken,
   });
-})
+});
 
 exports.changePassword = asyncHandle(async (req, res, next) => {
   const user = await User.findOne({
     passwordResetToken: req.params.resetToken,
-    passwordResetExpires: { $gte: Date.now() }
+    passwordResetExpires: { $gte: Date.now() },
   });
-  
+
   if (!user) {
     return next(new AppError("User not found", 400));
   }

@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   username: {
     type: String,
@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
     },
   ],
   passwordResetToken: String,
-  passwordResetExpires: Date
+  passwordResetExpires: Date,
 });
 
 userSchema.pre("save", async function (next) {
@@ -56,20 +56,18 @@ userSchema.methods.validPassword = async function (password) {
 };
 
 userSchema.methods.signToken = function () {
-  return jwt.sign(
-    { id: this._id },
-    process.env.JWT_ACCESS_KEY,
-    { expiresIn: "30m" }
-  );
-}
+  return jwt.sign({ id: this._id }, process.env.JWT_ACCESS_KEY, {
+    expiresIn: "30m",
+  });
+};
 
-userSchema.methods.createPasswordResetToken = function() {
-  const resetToken = crypto.randomBytes(16).toString('hex');
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(16).toString("hex");
 
   this.passwordResetToken = crypto
-    .createHash('sha256', "hunghjk")
+    .createHash("sha256", "hunghjk")
     .update(resetToken)
-    .digest('hex');
+    .digest("hex");
 
   console.log({ resetToken }, this.passwordResetToken);
 

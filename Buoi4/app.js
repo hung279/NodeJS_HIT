@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+//const { Sequelize } = require("sequelize");
 const dotenv = require("dotenv");
 const PORT = 3000;
 
@@ -27,6 +28,22 @@ mongoose
   .catch((err) => {
     console.log(err.message);
   });
+
+// const sequelize = new Sequelize('Demo', 'postgres', '279', {
+//   host: 'localhost',
+//   dialect: 'postgres'
+// });
+
+// async function connectPostgres() {
+//   try {
+//     await sequelize.authenticate();
+//     console.log('Connection has been established successfully.');
+//   } catch (error) {
+//     console.error('Unable to connect to the database:', error);
+//   };
+// }
+
+// connectPostgres();
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');

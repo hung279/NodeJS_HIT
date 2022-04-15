@@ -1,5 +1,5 @@
-const User = require("./../models/userModel");
-const Course = require("./../models/courseModel");
+const User = require("../models/userModel");
+const Course = require("../models/courseModel");
 
 const userController = {
   //GET ALL USERS
